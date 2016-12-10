@@ -4,19 +4,23 @@
 #include <unistd.h>
 #include "channels.h"
 
-void* thread1(void* arg) {
-	channel* chan = arg;
+typedef struct {
+	channel* chan;
+	int start;
+} thread_data;
 
-	printf("[thread1] Spawned, waiting for value...\n");
+void* thread(void* arg) {
+	thread_data* data = arg;
+
+	printf("[thread%d] Spawned\n", data->start);
 	fflush(stdout);
 
-	sleep(5);
+	int* value = malloc(sizeof(int));
+	*value = data->start;
+	printf("[thread%d] Sending %d\n", data->start, *value);
+	chan_send(data->chan, value);
 
-	int* value;
-	chan_recv(chan, (void**)&value);
-	printf("[thread1] Received %d\n", *value);
-
-	printf("[thread1] Exiting\n");
+	printf("[thread%d] Exiting\n", data->start);
 	fflush(stdout);
 
 	return NULL;
@@ -25,19 +29,36 @@ void* thread1(void* arg) {
 int main() {
 	channel* chan = chan_create(0);
 
-	pthread_t t1;
-	pthread_create(&t1, NULL, thread1, (void*)chan);
+	pthread_t threads[10];
+	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
+		thread_data* data = malloc(sizeof(thread_data));
+		data->chan = chan;
+		data->start = i;
 
-	printf("[main] Sending to channel\n");
+		pthread_create(&threads[i], NULL, thread, (void*)data);
+	}
+
+	printf("[main] Receiving from threads...\n");
 	fflush(stdout);
 
-	int* hello = malloc(sizeof(int));
-	*hello = 42;
+	int sum = 0;
+	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
+		sleep(2);
 
-	chan_send(chan, hello);
+		void* data;
+		chan_recv(chan, &data);
 
-	printf("[main] Value sent to channel\n");
+		int value = *(int*)data;
+		printf("[main] Received %d\n", value);
+		sum += value;
+
+		free(data);
+	}
+
+	printf("[main] Total sum received: %d\n", sum);
 	fflush(stdout);
 
-	pthread_join(t1, NULL);
+	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
+		pthread_join(threads[i], NULL);
+	}
 }

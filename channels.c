@@ -57,7 +57,7 @@ int chan_send(channel* chan, void* data) {
     chan->buffer[index] = data;
     chan->length++;
 
-    pthread_cond_signal(&chan->cond);
+    pthread_cond_broadcast(&chan->cond);
 
     while(chan->length == chan->capacity) {
         pthread_cond_wait(&chan->cond, &chan->mutex);
@@ -83,7 +83,7 @@ int chan_recv(channel* chan, void** data) {
     chan->head = (chan->head + 1) % chan->capacity;
     chan->length--;
 
-    pthread_cond_signal(&chan->cond);
+    pthread_cond_broadcast(&chan->cond);
 
     pthread_mutex_unlock(&chan->mutex);
 }
