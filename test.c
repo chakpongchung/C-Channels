@@ -29,7 +29,7 @@ void* thread(void* arg) {
 int main() {
 	channel* chan = chan_create(0);
 
-	pthread_t threads[10];
+	pthread_t threads[100];
 	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
 		thread_data* data = malloc(sizeof(thread_data));
 		data->chan = chan;
@@ -43,8 +43,6 @@ int main() {
 
 	int sum = 0;
 	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
-		sleep(2);
-
 		void* data;
 		chan_recv(chan, &data);
 
