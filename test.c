@@ -53,10 +53,10 @@ int main() {
 		free(data);
 	}
 
-	printf("[main] Total sum received: %d\n", sum);
-	fflush(stdout);
-
 	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
 		pthread_join(threads[i], NULL);
 	}
+
+	printf("[main] Total sum received: %d\n", sum);
+	fflush(stdout);
 }

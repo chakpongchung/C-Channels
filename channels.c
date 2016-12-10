@@ -32,7 +32,7 @@ channel* chan_create(unsigned int capacity) {
 void chan_close(channel* chan) {
     pthread_mutex_lock(&chan->mutex);
     if(!chan->is_closed) {
-        if(length == 0) {
+        if(chan->length == 0) {
             free(chan->buffer);
             chan->buffer = NULL;
         }
