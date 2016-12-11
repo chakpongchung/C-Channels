@@ -8,7 +8,7 @@ typedef struct channel_t {
     void** buffer;
     unsigned int capacity;
     unsigned int head;
-    unsigned int length;
+    unsigned int size;
     char is_closed;
 } channel;
 
@@ -23,7 +23,7 @@ channel* chan_create(unsigned int capacity) {
     chan->buffer = malloc(sizeof(void*) * capacity);
     chan->capacity = capacity;
     chan->head = 0;
-    chan->length = 0;
+    chan->size = 0;
     chan->is_closed = 0;
 
     return chan;
@@ -31,18 +31,12 @@ channel* chan_create(unsigned int capacity) {
 
 void chan_close(channel* chan) {
     pthread_mutex_lock(&chan->mutex);
-    if(!chan->is_closed) {
-        if(chan->length == 0) {
-            free(chan->buffer);
-            chan->buffer = NULL;
-        }
-        chan->is_closed = 1;
-    }
+    chan->is_closed = 1;
     pthread_mutex_unlock(&chan->mutex);
 }
 
 void chan_destroy(channel* chan) {
-    free(chan->buffer);
+    chan_close(chan);
     pthread_mutex_destroy(&chan->mutex);
     pthread_cond_destroy(&chan->cond);
     free(chan);
@@ -56,17 +50,17 @@ int chan_send(channel* chan, void* data) {
         return -1;
     }
 
-    while(chan->length == chan->capacity) {
+    while(chan->size == chan->capacity) {
         pthread_cond_wait(&chan->cond, &chan->mutex);
     }
 
-    unsigned int index = (chan->head + chan->length) % chan->capacity;
+    unsigned int index = (chan->head + chan->size) % chan->capacity;
     chan->buffer[index] = data;
-    chan->length++;
+    chan->size++;
 
     pthread_cond_broadcast(&chan->cond);
 
-    while(chan->length == chan->capacity) {
+    while(chan->size == chan->capacity) {
         pthread_cond_wait(&chan->cond, &chan->mutex);
     }
 
@@ -78,19 +72,19 @@ int chan_send(channel* chan, void* data) {
 int chan_recv(channel* chan, void** data) {
     pthread_mutex_lock(&chan->mutex);
 
-    if(chan->length == 0 && chan->is_closed) {
+    if(chan->size == 0 && chan->is_closed) {
         pthread_mutex_unlock(&chan->mutex);
         return -1;
     }
 
-    while(chan->length == 0) {
+    while(chan->size == 0) {
         pthread_cond_wait(&chan->cond, &chan->mutex);
     }
 
     *data = chan->buffer[chan->head];
 
     chan->head = (chan->head + 1) % chan->capacity;
-    chan->length--;
+    chan->size--;
 
     pthread_cond_broadcast(&chan->cond);
 
