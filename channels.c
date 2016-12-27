@@ -39,6 +39,7 @@ void chan_destroy(channel* chan) {
     chan_close(chan);
     pthread_mutex_destroy(&chan->mutex);
     pthread_cond_destroy(&chan->cond);
+    free(chan->buffer);
     free(chan);
 }
 

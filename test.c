@@ -29,8 +29,9 @@ void* thread(void* arg) {
 int main() {
 	channel* chan = chan_create(0);
 
-	pthread_t threads[100];
-	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
+	#define NUM_THREADS
+	pthread_t threads[NUM_THREADS];
+	for(int i = 0; i < NUM_THREADS; i++) {
 		thread_data* data = malloc(sizeof(thread_data));
 		data->chan = chan;
 		data->start = i;
@@ -42,7 +43,7 @@ int main() {
 	fflush(stdout);
 
 	int sum = 0;
-	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
+	for(int i = 0; i < NUM_THREADS; i++) {
 		void* data;
 		chan_recv(chan, &data);
 
@@ -53,7 +54,7 @@ int main() {
 		free(data);
 	}
 
-	for(int i = 0; i < sizeof(threads)/sizeof(threads[0]); i++) {
+	for(int i = 0; i < NUM_THREADS; i++) {
 		pthread_join(threads[i], NULL);
 	}
 
