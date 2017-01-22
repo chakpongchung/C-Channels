@@ -8,6 +8,14 @@ There is a test.c program to sum over all the threadID(indexed beginning from 0)
 For pressure testing, you can uncomment the corresponding line in Makefile. There is no known memory leak found by using Valgrind and address sanitizer.
 
 Initial testing shows this implementation can scale up to 400 threads on a Dual Core CPU.
+	
+	time ./channels -t 400
+	[main] Total sum received: 79800
+
+	real	0m0.105s
+	user	0m0.016s
+	sys	0m0.124s
+
 
 
 # Documents
