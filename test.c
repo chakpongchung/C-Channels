@@ -2,7 +2,28 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include <errno.h>
+#include <getopt.h>
+#include <stdint.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "channels.h"
+
+#define USAGE                                                                  \
+  "usage:\n"                                                                   \
+  "  webclient [options]\n"                                                    \
+  "options:\n"                                                                 \
+  "-t [NUM_THREADS]       Number of threads (Default 1)\n"                  \
+
+
+/* OPTIONS DESCRIPTOR ====================================================== */
+static struct option gLongOptions[] = {
+    {"NUM_THREADS", required_argument, NULL, 't'},
+    {NULL, 0, NULL, 0}};
+
+static void Usage() { fprintf(stdout, "%s", USAGE); }
 
 typedef struct {
 	channel* chan;
@@ -26,10 +47,29 @@ void* thread(void* arg) {
 	return NULL;
 }
 
-int main() {
+int main(int argc, char **argv) {
 	channel* chan = chan_create(0);
 
-	#define NUM_THREADS
+	// #define NUM_THREADS 2
+	int NUM_THREADS = 1;
+	int option_char = 0;
+	 // Parse and set command line arguments
+  while ((option_char = getopt_long(argc, argv, "t:h", gLongOptions,
+                                    NULL)) != -1) {
+    switch (option_char) {
+
+    case 't': // NUM_THREADS
+      NUM_THREADS = atoi(optarg);
+      break;
+    case 'h': // help
+      Usage();
+      exit(0);
+      break;
+    default:
+      Usage();
+      exit(1);
+    }
+  }
 	pthread_t threads[NUM_THREADS];
 	for(int i = 0; i < NUM_THREADS; i++) {
 		thread_data* data = malloc(sizeof(thread_data));
