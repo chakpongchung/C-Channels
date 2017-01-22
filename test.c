@@ -1,20 +1,19 @@
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 #include <errno.h>
 #include <getopt.h>
+#include <pthread.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
 #include "channels.h"
 
-#define USAGE               \
-  "usage:\n"                \
-  "  webclient [options]\n" \
-  "options:\n"              \
+#define USAGE                \
+  "usage:\n"                 \
+  "  C-Channels [options]\n" \
+  "options:\n"               \
   "-t [NUM_THREADS]       Number of threads (Default 1)\n"
 
 /* OPTIONS DESCRIPTOR ====================================================== */
@@ -45,10 +44,9 @@ void* thread(void* arg) {
   return NULL;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   channel* chan = chan_create(0);
 
-  // #define NUM_THREADS 2
   int NUM_THREADS = 1;
   int option_char = 0;
   // Parse and set command line arguments

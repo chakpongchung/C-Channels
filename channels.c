@@ -6,9 +6,9 @@ typedef struct channel_t {
   pthread_cond_t cond;
 
   void** buffer;
-  unsigned int capacity;
-  unsigned int head;
-  unsigned int size;
+  unsigned int capacity;  // size of the circular queue
+  unsigned int head;      // points to an array of dataqsiz elements
+  unsigned int size;      // total data in the queue
   char is_closed;
 } channel;
 
