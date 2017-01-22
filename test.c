@@ -11,17 +11,15 @@
 #include <unistd.h>
 #include "channels.h"
 
-#define USAGE                                                                  \
-  "usage:\n"                                                                   \
-  "  webclient [options]\n"                                                    \
-  "options:\n"                                                                 \
-  "-t [NUM_THREADS]       Number of threads (Default 1)\n"                  \
-
+#define USAGE               \
+  "usage:\n"                \
+  "  webclient [options]\n" \
+  "options:\n"              \
+  "-t [NUM_THREADS]       Number of threads (Default 1)\n"
 
 /* OPTIONS DESCRIPTOR ====================================================== */
 static struct option gLongOptions[] = {
-    {"NUM_THREADS", required_argument, NULL, 't'},
-    {NULL, 0, NULL, 0}};
+    {"NUM_THREADS", required_argument, NULL, 't'}, {NULL, 0, NULL, 0}};
 
 static void Usage() { fprintf(stdout, "%s", USAGE); }
 
@@ -53,26 +51,25 @@ int main(int argc, char **argv) {
   // #define NUM_THREADS 2
   int NUM_THREADS = 1;
   int option_char = 0;
-   // Parse and set command line arguments
-  while ((option_char = getopt_long(argc, argv, "t:h", gLongOptions,
-                                    NULL)) != -1) {
+  // Parse and set command line arguments
+  while ((option_char = getopt_long(argc, argv, "t:h", gLongOptions, NULL)) !=
+         -1) {
     switch (option_char) {
-
-    case 't': // NUM_THREADS
-      NUM_THREADS = atoi(optarg);
-      break;
-    case 'h': // help
-      Usage();
-      exit(0);
-      break;
-    default:
-      Usage();
-      exit(1);
+      case 't':  // NUM_THREADS
+        NUM_THREADS = atoi(optarg);
+        break;
+      case 'h':  // help
+        Usage();
+        exit(0);
+        break;
+      default:
+        Usage();
+        exit(1);
     }
   }
   pthread_t threads[NUM_THREADS];
 
-  for(int i = 0; i < NUM_THREADS; i++) {
+  for (int i = 0; i < NUM_THREADS; i++) {
     thread_data* data = malloc(sizeof(thread_data));
     data->chan = chan;
     data->start = i;
@@ -84,7 +81,7 @@ int main(int argc, char **argv) {
   fflush(stdout);
 
   int sum = 0;
-  for(int i = 0; i < NUM_THREADS; i++) {
+  for (int i = 0; i < NUM_THREADS; i++) {
     void* data;
     chan_recv(chan, &data);
 
@@ -95,7 +92,7 @@ int main(int argc, char **argv) {
     free(data);
   }
 
-  for(int i = 0; i < NUM_THREADS; i++) {
+  for (int i = 0; i < NUM_THREADS; i++) {
     pthread_join(threads[i], NULL);
   }
 
