@@ -12,4 +12,4 @@ clean:
 
 run: build
 	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./$(OUTPUT) -t $(NUM_THREADS) 
-	git diff -U0 --no-color HEAD^ | python clang-format-diff.py -i -p1
+	bash -x format.sh
