@@ -1,7 +1,6 @@
 #ifndef __CHANNELS_H__
 #define __CHANNELS_H__
 
-// #define NUM_THREADS 2
 struct channel_t;
 typedef struct channel_t channel;
 
